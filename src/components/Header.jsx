@@ -1,18 +1,17 @@
 import { PlusCircle, LogIn, LogOut, User } from 'lucide-react';
 
-export default function Header({ user, onOpenAuth, onOpenCreate, onSignOut }) {
+export default function Header({ user, onOpenAuth, onOpenCreate, onOpenProfile, onSignOut }) {
     return (
         <header className="border-b-2 border-ny-border bg-ny-card/80 backdrop-blur sticky top-0 z-40 px-4 py-4">
             <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-                {/* Logo / Titre */}
-                <div className="flex items-center gap-3">
+
+                {/* Logo / Titre 90s */}
+                <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.location.reload()}>
                     <div className="bg-ny-yellow text-black font-display font-bold text-2xl px-3 py-1 border-2 border-black shadow-[3px_3px_0px_0px_#000]">
                         BLOCK PARTY
                     </div>
                     <div>
-                        <h1 className="text-sm font-bold tracking-wider text-ny-muted uppercase">
-                            RDR & Entraide Underground
-                        </h1>
+                        <h1 className="text-sm font-bold tracking-wider text-ny-muted uppercase">RDR & Entraide Underground</h1>
                         <p className="text-xs text-gray-400">New York City Style • 1990s Vibes</p>
                     </div>
                 </div>
@@ -25,15 +24,22 @@ export default function Header({ user, onOpenAuth, onOpenCreate, onSignOut }) {
                                 onClick={onOpenCreate}
                                 className="flex items-center gap-2 bg-ny-yellow text-black font-bold px-4 py-2 border-2 border-black shadow-brut-yellow hover:translate-x-0.5 hover:translate-y-0.5 transition-all text-sm uppercase"
                             >
-                                <PlusCircle size={18} /> Publier un article
+                                <PlusCircle size={18} /> Publier
                             </button>
 
                             <div className="flex items-center gap-2 bg-ny-border px-3 py-2 border-2 border-black text-xs">
-                                <User size={16} className="text-ny-yellow" />
-                                <span className="font-semibold text-white">{user.email.split('@')[0]}</span>
+                                <button
+                                    onClick={onOpenProfile}
+                                    className="flex items-center gap-1.5 text-white font-semibold hover:text-ny-yellow transition-colors"
+                                    title="Accéder à mon profil"
+                                >
+                                    <User size={16} className="text-ny-yellow" />
+                                    <span>{user.email.split('@')[0]}</span>
+                                </button>
+
                                 <button
                                     onClick={onSignOut}
-                                    className="ml-2 text-ny-red hover:text-red-400 font-bold"
+                                    className="ml-3 text-ny-red hover:text-red-400 font-bold border-l border-ny-muted/30 pl-2"
                                     title="Se déconnecter"
                                 >
                                     <LogOut size={16} />
@@ -49,7 +55,8 @@ export default function Header({ user, onOpenAuth, onOpenCreate, onSignOut }) {
                         </button>
                     )}
                 </div>
+
             </div>
-        </header >
-    )
+        </header>
+    );
 }
