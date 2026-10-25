@@ -1,11 +1,15 @@
+import Header from "./components/Header";
+import Hero from "./components/Hero";
+import Footer from "./components/Footer";
+
 function App() {
   return (
     <>
-      <section className="bg-black-600 text-white flex">
-        <div>
-          <h1 className="text-red-700 text-3xl font-bold">Blog RDR</h1>
-        </div>
+      <Header />
+      <section>
+        <Hero />
       </section>
+      <Footer />
     </>
   );
 }
