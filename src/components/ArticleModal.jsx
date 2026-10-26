@@ -163,9 +163,15 @@ export default function ArticleModal({ post, isOpen, onClose, user, onOpenAuth }
                             ) : (
                                 comments.map((comment) => (
                                     <div key={comment.id} className="bg-ny-bg p-3 border border-ny-border text-xs">
+                                        {/* Exemple dans la liste des commentaires de ArticleModal.jsx */}
                                         <div className="flex items-center justify-between mb-1">
-                                            <span className="font-bold text-ny-yellow flex items-center gap-1">
-                                                <User size={12} /> {comment.profiles?.username || 'Membre'}
+                                            <span className="font-bold text-ny-yellow flex items-center gap-2">
+                                                {comment.profiles?.avatar_url ? (
+                                                    <img src={comment.profiles.avatar_url} alt="" className="w-5 h-5 object-cover border border-black" />
+                                                ) : (
+                                                    <User size={12} />
+                                                )}
+                                                {comment.profiles?.username || 'Membre'}
                                             </span>
                                             <span className="text-[10px] text-ny-muted">
                                                 {new Date(comment.created_at).toLocaleTimeString('fr-FR', {

@@ -7,7 +7,7 @@ import CreateModal from './components/CreateModal';
 import ArticleModal from './components/ArticleModal'; // Import du nouveau composant
 import { ShieldAlert, Radio } from 'lucide-react';
 import ProfilePage from './components/ProfilePage';
-
+import GalleryPage from './components/GalleryPage';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -15,22 +15,12 @@ export default function App() {
   const [selectedPost, setSelectedPost] = useState(null); // Article ouvert
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState('feed');
+  const [userProfile, setUserProfile] = useState(null);
+
   // États des modales
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isArticleOpen, setIsArticleOpen] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -46,25 +36,60 @@ export default function App() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  const fetchUserProfile = async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('username, avatar_url')
+      .eq('id', user.id)
+      .single();
+
+    if (!error && data) {
+      setUserProfile(data);
+    }
+  };
 
   const handleOpenArticle = (post) => {
     setSelectedPost(post);
     setIsArticleOpen(true);
   };
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+    } else {
+      setUserProfile(null);
+    }
+  }, [user]);
+
+
   return (
-    <div className="min-h-screen bg-ny-bg text-gray-100 bg-grid-pattern pb-12">
+    <div className="min-h-screen bg-ny-bg bg-grid-pattern pb-12">
 
       <Header
         user={user}
+        userProfile={userProfile}
         onOpenAuth={() => setIsAuthOpen(true)}
-        onOpenCreate={() => setCurrentView('profile')} // Redirige direct vers le studio du profil
-        onOpenProfile={() => setCurrentView('profile')} // Option pour ouvrir le profil
+        onOpenCreate={() => setCurrentView('profile')}
+        onOpenProfile={() => setCurrentView('profile')}
         onSignOut={() => {
           supabase.auth.signOut();
+          setUserProfile(null);
           setCurrentView('feed');
         }}
       />
@@ -87,6 +112,15 @@ export default function App() {
         <Radio size={16} className="animate-pulse text-ny-red" />
       </div>
 
+      {/* Galery */}
+      {currentView === 'gallery' ? (
+        <GalleryPage user={user} />
+      ) : (
+        <span>
+          Pas de photo pour le moment
+        </span>
+      )
+      }
       <main className="max-w-6xl mx-auto px-4 mt-8">
         <div className="mb-8">
           <h2 className="font-display text-4xl tracking-wide uppercase">Derniers Témoignages & Posts</h2>

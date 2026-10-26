@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { uploadImage } from '../lib/storage';
 import CreateArticleModal from './CreateArticleModal'; // <-- Import de la modale
 import {
-    User, PlusCircle, Edit3, FileText, Save, Trash2, ArrowLeft, CheckCircle2, AlertCircle
+    User, PlusCircle, FileText, Save, Trash2, ArrowLeft, CheckCircle2, AlertCircle
 } from 'lucide-react';
 
 export default function ProfilePage({ user, onBack, onPostUpdated }) {
@@ -11,7 +11,9 @@ export default function ProfilePage({ user, onBack, onPostUpdated }) {
     const [userPosts, setUserPosts] = useState([]);
     const [activeTab, setActiveTab] = useState('my-posts'); // 'my-posts' | 'edit-profile'
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // <-- État Modale
-
+    const [hobbies, setHobbies] = useState('');
+    const [gender, setGender] = useState('');
+    const [age, setAge] = useState('');
     // Édition profil
     const [username, setUsername] = useState('');
     const [bio, setBio] = useState('');
@@ -20,12 +22,8 @@ export default function ProfilePage({ user, onBack, onPostUpdated }) {
     const [savingProfile, setSavingProfile] = useState(false);
     const [message, setMessage] = useState(null);
 
-    useEffect(() => {
-        if (user) loadUserData();
-    }, [user]);
-
+    // Chargement initial
     const loadUserData = async () => {
-        // Récupérer le profil
         const { data: profileData } = await supabase
             .from('profiles')
             .select('*')
@@ -36,18 +34,27 @@ export default function ProfilePage({ user, onBack, onPostUpdated }) {
             setProfile(profileData);
             setUsername(profileData.username || '');
             setBio(profileData.bio || '');
+            setHobbies(profileData.hobbies || '');
+            setGender(profileData.gender || '');
+            setAge(profileData.age || '');
             setAvatarPreview(profileData.avatar_url || '');
         }
-
-        // Récupérer les articles (publiés et brouillons)
-        const { data: postsData } = await supabase
-            .from('posts')
-            .select('*')
-            .eq('author_id', user.id)
-            .order('created_at', { ascending: false });
-
-        if (postsData) setUserPosts(postsData);
     };
+    // Sauvegarde dans handleSaveProfile :
+    const { error } = supabase
+        .from('profiles')
+        .update({
+            username,
+            bio,
+            hobbies,
+            gender,
+            age: age ? parseInt(age, 10) : null,
+            avatar_url: uploadedAvatarUrl,
+        })
+        .eq('id', user.id);
+    useEffect(() => {
+        if (user) loadUserData();
+    }, [user]);
 
     const handleSaveProfile = async (e) => {
         e.preventDefault();
@@ -87,6 +94,7 @@ export default function ProfilePage({ user, onBack, onPostUpdated }) {
             if (onPostUpdated) onPostUpdated();
         }
     };
+
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-8">
